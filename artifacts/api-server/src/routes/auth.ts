@@ -27,6 +27,15 @@ router.post("/auth/login", async (req, res) => {
       return;
     }
 
+    // Convert both to lowercase and trim spaces to avoid case-sensitive mismatches
+    const dbName = user[0].nombre.toLowerCase().trim();
+    const inputName = nombre.toLowerCase().trim();
+
+    if (dbName !== inputName) {
+      res.status(401).json({ error: "El nombre no coincide con la cédula registrada." });
+      return;
+    }
+
     logger.info({ cedula }, "User logged in successfully");
     res.json({ success: true, user: user[0] });
   } catch (err: unknown) {
