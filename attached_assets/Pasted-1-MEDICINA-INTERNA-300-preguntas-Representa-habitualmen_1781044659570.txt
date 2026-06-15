@@ -1,0 +1,228 @@
+1. MEDICINA INTERNA (≈300 preguntas)
+
+Representa habitualmente la mayor proporción del examen.
+
+Cardiología
+Síndrome coronario agudo
+IAM con y sin elevación del ST
+Insuficiencia cardíaca
+Fibrilación auricular
+Arritmias
+Hipertensión arterial
+Emergencias hipertensivas
+Valvulopatías
+Endocarditis infecciosa
+Neumología
+Asma
+EPOC
+Neumonía adquirida en la comunidad
+Tuberculosis
+Derrame pleural
+Tromboembolia pulmonar
+Insuficiencia respiratoria
+Endocrinología
+Diabetes mellitus
+Cetoacidosis diabética
+Estado hiperosmolar
+Hipotiroidismo
+Hipertiroidismo
+Nódulo tiroideo
+Gastroenterología
+Hemorragia digestiva alta y baja
+Cirrosis
+Ascitis
+Encefalopatía hepática
+Hepatitis virales
+Pancreatitis
+Colecistitis
+Nefrología
+Lesión renal aguda
+Enfermedad renal crónica
+Síndrome nefrótico
+Síndrome nefrítico
+Trastornos hidroelectrolíticos
+Infectología
+VIH
+Infecciones oportunistas
+Sepsis
+Choque séptico
+Dengue
+Leptospirosis
+Reumatología
+Artritis reumatoide
+Lupus
+Vasculitis
+Gota
+Hematología
+Anemias
+Leucemias
+Trastornos de coagulación
+2. PEDIATRÍA (≈150 preguntas)
+Neonatología
+Reanimación neonatal
+Ictericia neonatal
+Sepsis neonatal
+Prematuridad
+Hipoglucemia neonatal
+Crecimiento y desarrollo
+Hitos del desarrollo
+Curvas OMS
+Nutrición
+Infectología pediátrica
+IRA
+Neumonía
+Otitis media
+Gastroenteritis
+Enfermedades exantemáticas
+Emergencias pediátricas
+Deshidratación
+Convulsión febril
+Crisis asmática
+Anafilaxia
+Vacunas
+Esquema MSP Ecuador
+Contraindicaciones
+Eventos adversos
+Otros
+Síndrome nefrótico
+Púrpura de Henoch-Schönlein
+Cardiopatías congénitas
+3. GINECOLOGÍA Y OBSTETRICIA (≈150 preguntas)
+Control prenatal
+Riesgo obstétrico
+Tamizajes
+Suplementación
+Trastornos hipertensivos
+Preeclampsia
+Eclampsia
+HELLP
+Hemorragias
+Placenta previa
+DPPNI
+Hemorragia postparto
+Trabajo de parto
+Partograma
+Distocias
+Inducción
+Cesárea
+Infecciones
+ITU en embarazo
+Corioamnionitis
+TORCH
+Ginecología
+Sangrado uterino anormal
+Miomatosis
+Endometriosis
+SOP
+Menopausia
+Oncología ginecológica
+Cáncer cervicouterino
+Tamizaje PAP
+HPV
+Cáncer de mama
+Planificación familiar
+Métodos anticonceptivos
+Elegibilidad OMS
+4. CIRUGÍA GENERAL (≈150 preguntas)
+Abdomen agudo
+Apendicitis
+Colecistitis
+Pancreatitis
+Obstrucción intestinal
+Peritonitis
+Trauma
+Trauma abdominal
+Trauma torácico
+ATLS
+Hernias
+Inguinal
+Umbilical
+Complicaciones
+Proctología
+Hemorroides
+Fisura anal
+Absceso perianal
+Cirugía vascular
+Isquemia aguda
+TVP
+Perioperatorio
+Riesgo quirúrgico
+Antibióticos profilácticos
+5. EMERGENCIAS (≈100 preguntas)
+Reanimación
+RCP adulto
+RCP pediátrico
+ACLS
+Shock
+Hipovolémico
+Séptico
+Cardiogénico
+Anafiláctico
+Intoxicaciones
+Organofosforados
+Benzodiacepinas
+Paracetamol
+Emergencias metabólicas
+CAD
+Estado hiperosmolar
+Hipoglucemia
+Neurológicas
+ACV
+Estado epiléptico
+Hipertensión intracraneal
+6. SALUD PÚBLICA Y APS (≈50 preguntas)
+Atención Primaria
+APS renovada
+Promoción
+Prevención
+Epidemiología
+Sensibilidad
+Especificidad
+VPP
+VPN
+Riesgo relativo
+Odds ratio
+Programas MSP
+Tuberculosis
+VIH
+Inmunizaciones
+Investigación
+Diseños de estudio
+Sesgos
+Validez
+7. BIOÉTICA Y LEGISLACIÓN SANITARIA (≈50 preguntas)
+Principios bioéticos
+Autonomía
+Beneficencia
+No maleficencia
+Justicia
+Consentimiento informado
+Capacidad
+Representación
+Confidencialidad
+Historia clínica
+Secreto profesional
+Legislación ecuatoriana
+Ley Orgánica de Salud
+Derechos del paciente
+Responsabilidad profesional
+Violencia intrafamiliar
+Notificación obligatoria
+8. SALUD MENTAL (≈50 preguntas)
+Psiquiatría
+Depresión mayor
+Trastorno bipolar
+Ansiedad
+TOC
+Esquizofrenia
+Urgencias psiquiátricas
+Riesgo suicida
+Agitación psicomotriz
+Adicciones
+Alcohol
+Tabaco
+Sustancias
+Psicofarmacología básica
+ISRS
+Antipsicóticos
+Estabilizadores del ánimo

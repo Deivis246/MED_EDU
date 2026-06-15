@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>MedInterna Educativa</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:Arial, sans-serif;
+  background:#07111f;
+  color:#eaf6ff;
+}
+.login{
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:linear-gradient(135deg,#07111f,#0b2b3d);
+}
+.card{
+  background:#111c2e;
+  padding:25px;
+  border-radius:18px;
+  box-shadow:0 0 25px #00c8ff33;
+  width:90%;
+  max-width:420px;
+}
+h1,h2,h3{color:#ffffff}
+input,button,select{
+  width:100%;
+  padding:12px;
+  margin:8px 0;
+  border-radius:10px;
+  border:none;
+}
+input,select{
+  background:#0b1628;
+  color:white;
+  border:1px solid #1f3b55;
+}
+button{
+  background:#00c8ff;
+  color:#00111a;
+  font-weight:bold;
+  cursor:pointer;
+}
+button:hover{background:#00a9d6}
+.app{
+  display:none;
+  min-height:100vh;
+}
+.sidebar{
+  position:fixed;
+  left:0;
+  top:0;
+  bottom:0;
+  width:230px;
+  background:#081222;
+  padding:20px;
+}
+.sidebar h2{color:#00c8ff}
+.menu{
+  padding:12px;
+  border-radius:12px;
+  margin:10px 0;
+  cursor:pointer;
+}
+.menu:hover,.active{background:#0d3249}
+.main{
+  margin-left:230px;
+  padding:25px;
+}
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+  gap:20px;
+}
+.module{
+  background:#111c2e;
+  border-radius:18px;
+  overflow:hidden;
+  box-shadow:0 0 15px #0008;
+}
+.banner{
+  height:80px;
+  background:linear-gradient(135deg,#03283d,#00c8ff33);
+}
+.module-content{padding:18px}
+.progress{
+  background:#1d3045;
+  border-radius:20px;
+  overflow:hidden;
+  height:8px;
+  margin:15px 0;
+}
+.bar{
+  background:#00c8ff;
+  height:100%;
+  width:0%;
+}
+.section{
+  display:none;
+  background:#111c2e;
+  padding:22px;
+  border-radius:18px;
+}
+.question{
+  background:#0b1628;
+  padding:15px;
+  border-radius:12px;
+  margin:12px 0;
+}
+.option{
+  display:block;
+  margin:8px 0;
+}
+.result{
+  background:#062f3d;
+  padding:15px;
+  border-radius:12px;
+  margin-top:15px;
+}
+.badge{
+  display:inline-block;
+  padding:6px 10px;
+  border-radius:12px;
+  background:#00c8ff22;
+  color:#00c8ff;
+}
+</style>
+</head>
+
+<body>
+
+<div class="login" id="login">
+  <div class="card">
+    <h1>MedInterna Educativa</h1>
+    <p>Ingrese sus datos para acceder a la plataforma.</p>
+
+    <input type="text" id="nombre" placeholder="Nombre completo">
+    <input type="text" id="cedula" placeholder="Cédula">
+    <select id="curso">
+      <option value="">Seleccione curso o semestre</option>
+      <option>7mo semestre Medicina</option>
+      <option>8vo semestre Medicina</option>
+      <option>Postgrado</option>
+    </select>
+
+    <button onclick="ingresar()">Ingresar</button>
+  </div>
+</div>
+
+<div class="app" id="app">
+  <div class="sidebar">
+    <h2>MedInterna</h2>
+    <p id="userData"></p>
+    <div class="menu active" onclick="mostrarDashboard()">📚 Módulos</div>
+    <div class="menu" onclick="mostrarProgreso()">📊 Progreso</div>
+    <div class="menu" onclick="cerrarSesion()">🚪 Cerrar sesión</div>
+  </div>
+
+  <div class="main">
+    <div id="dashboard">
+      <h1>Plataforma Educativa</h1>
+      <p>Pretest, postest, casos clínicos, juegos y contenido interactivo.</p>
+
+      <div class="grid" id="modules"></div>
+    </div>
+
+    <div id="contenidoModulo" class="section"></div>
+
+    <div id="progreso" class="section">
+      <h2>Progreso del estudiante</h2>
+      <p id="progresoTexto"></p>
+      <div id="tablaResultados"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+let estudiante = {};
+let resultados = JSON.parse(localStorage.getItem("resultadosMedInterna")) || {};
+
+const modulos = [
+  {
+    id:"tiroides",
+    titulo:"Módulo 1. Tiroides",
+    desc:"Examen físico, pruebas tiroideas y conducta inicial.",
+    info:"La patología tiroidea incluye hipotiroidismo, hipertiroidismo, bocio y nódulos tiroideos. La evaluación inicial incluye TSH, T4 libre, examen físico y ecografía según el caso.",
+    caso:"Paciente femenina de 35 años con cansancio, aumento de peso, piel seca y TSH elevada. ¿Cuál es el diagnóstico más probable?",
+    respuestaCaso:"Hipotiroidismo primario",
+    preguntas:[
+      {q:"¿Cuál es la prueba inicial más útil para evaluar función tiroidea?", a:["TSH","Creatinina","Troponina"], c:0},
+      {q:"TSH alta y T4 libre baja sugieren:", a:["Hipertiroidismo","Hipotiroidismo primario","Diabetes"], c:1}
+    ]
+  },
+  {
+    id:"diabetes",
+    titulo:"Módulo 2. Diabetes Mellitus tipo 2",
+    desc:"Diagnóstico, tratamiento inicial y control metabólico.",
+    info:"La diabetes mellitus tipo 2 se caracteriza por resistencia a la insulina y alteración progresiva de la secreción pancreática. El control incluye alimentación saludable, actividad física, HbA1c y tratamiento farmacológico.",
+    caso:"Paciente de 50 años con HbA1c 8.5%, obesidad y glucosa elevada. ¿Cuál es el problema principal?",
+    respuestaCaso:"Diabetes mellitus tipo 2 mal controlada",
+    preguntas:[
+      {q:"¿Qué examen refleja el control glucémico de los últimos 3 meses?", a:["HbA1c","Urea","PCR"], c:0},
+      {q:"Una meta común de HbA1c en muchos adultos es:", a:["Menor a 7%","Mayor a 10%","Mayor a 12%"], c:0}
+    ]
+  },
+  {
+    id:"hta",
+    titulo:"Módulo 3. Hipertensión arterial",
+    desc:"Diagnóstico, riesgo cardiovascular y manejo inicial.",
+    info:"La hipertensión arterial requiere medición adecuada de presión arterial, estratificación de riesgo cardiovascular y cambios en estilo de vida asociados a tratamiento cuando corresponda.",
+    caso:"Paciente de 60 años con PA 160/95 mmHg en varias tomas. ¿Qué condición presenta?",
+    respuestaCaso:"Hipertensión arterial",
+    preguntas:[
+      {q:"¿Qué órgano puede afectarse por hipertensión crónica?", a:["Riñón","Cabello","Uñas"], c:0},
+      {q:"Una medida no farmacológica importante es:", a:["Reducir sal","Aumentar tabaco","Evitar controles"], c:0}
+    ]
+  }
+];
+
+function ingresar(){
+  let nombre=document.getElementById("nombre").value.trim();
+  let cedula=document.getElementById("cedula").value.trim();
+  let curso=document.getElementById("curso").value;
+
+  if(nombre==="" || cedula==="" || curso===""){
+    alert("Complete nombre, cédula y curso.");
+    return;
+  }
+
+  estudiante={nombre,cedula,curso};
+  localStorage.setItem("estudianteMedInterna",JSON.stringify(estudiante));
+  iniciarApp();
+}
+
+function iniciarApp(){
+  estudiante=JSON.parse(localStorage.getItem("estudianteMedInterna"));
+  document.getElementById("login").style.display="none";
+  document.getElementById("app").style.display="block";
+  document.getElementById("userData").innerHTML=
+    "<b>"+estudiante.nombre+"</b><br>C.I. "+estudiante.cedula+"<br>"+estudiante.curso;
+  cargarModulos();
+}
+
+function cargarModulos(){
+  let cont=document.getElementById("modules");
+  cont.innerHTML="";
+  modulos.forEach(m=>{
+    let r=resultados[m.id] || {avance:0};
+    cont.innerHTML+=`
+      <div class="module">
+        <div class="banner"></div>
+        <div class="module-content">
+          <h2>${m.titulo}</h2>
+          <p>${m.desc}</p>
+          <div class="progress"><div class="bar" style="width:${r.avance}%"></div></div>
+          <p>${r.avance}% completado</p>
+          <button onclick="abrirModulo('${m.id}')">Ingresar</button>
+        </div>
+      </div>
+    `;
+  });
+}
+
+function abrirModulo(id){
+  let m=modulos.find(x=>x.id===id);
+  document.getElementById("dashboard").style.display="none";
+  document.getElementById("progreso").style.display="none";
+
+  let html=`
+    <h2>${m.titulo}</h2>
+    <span class="badge">Estudiante: ${estudiante.nombre}</span>
+
+    <h3>1. Pretest</h3>
+    ${generarPreguntas(m,"pre")}
+
+    <h3>2. Información del módulo</h3>
+    <p>${m.info}</p>
+
+    <h3>3. Caso clínico</h3>
+    <div class="question">
+      <p>${m.caso}</p>
+      <input type="text" id="caso_${m.id}" placeholder="Escriba su respuesta">
+    </div>
+
+    <h3>4. Juego / cuestionario rápido</h3>
+    <p>Responda nuevamente para reforzar el aprendizaje.</p>
+    ${generarPreguntas(m,"juego")}
+
+    <h3>5. Postest</h3>
+    ${generarPreguntas(m,"post")}
+
+    <button onclick="calificarModulo('${m.id}')">Finalizar módulo</button>
+    <button onclick="mostrarDashboard()">Volver</button>
+
+    <div id="resultado_${m.id}" class="result"></div>
+  `;
+
+  let sec=document.getElementById("contenidoModulo");
+  sec.innerHTML=html;
+  sec.style.display="block";
+}
+
+function generarPreguntas(m,tipo){
+  let html="";
+  m.preguntas.forEach((p,i)=>{
+    html+=`<div class="question"><b>${i+1}. ${p.q}</b>`;
+    p.a.forEach((op,j)=>{
+      html+=`
+        <label class="option">
+          <input type="radio" name="${tipo}_${m.id}_${i}" value="${j}"> ${op}
+        </label>`;
+    });
+    html+=`</div>`;
+  });
+  return html;
+}
+
+function calcular(m,tipo){
+  let score=0;
+  m.preguntas.forEach((p,i)=>{
+    let r=document.querySelector(`input[name="${tipo}_${m.id}_${i}"]:checked`);
+    if(r && parseInt(r.value)===p.c) score++;
+  });
+  return Math.round((score/m.preguntas.length)*100);
+}
+
+function calificarModulo(id){
+  let m=modulos.find(x=>x.id===id);
+
+  let pre=calcular(m,"pre");
+  let juego=calcular(m,"juego");
+  let post=calcular(m,"post");
+
+  let casoResp=document.getElementById("caso_"+id).value.toLowerCase();
+  let caso=casoResp.includes("hipotiroidismo") || casoResp.includes("diabetes") || casoResp.includes("hipertensión") || casoResp.includes("hipertension") ? 100 : 50;
+
+  let final=Math.round((pre*0.2)+(caso*0.2)+(juego*0.2)+(post*0.4));
+
+  resultados[id]={
+    pretest:pre,
+    caso:caso,
+    juego:juego,
+    postest:post,
+    final:final,
+    avance:100
+  };
+
+  localStorage.setItem("resultadosMedInterna",JSON.stringify(resultados));
+
+  document.getElementById("resultado_"+id).innerHTML=`
+    <h3>Resultado final</h3>
+    <p>Pretest: ${pre}/100</p>
+    <p>Caso clínico: ${caso}/100</p>
+    <p>Juego: ${juego}/100</p>
+    <p>Postest: ${post}/100</p>
+    <h2>Nota final: ${final}/100</h2>
+  `;
+
+  cargarModulos();
+}
+
+function mostrarDashboard(){
+  document.getElementById("dashboard").style.display="block";
+  document.getElementById("contenidoModulo").style.display="none";
+  document.getElementById("progreso").style.display="none";
+  cargarModulos();
+}
+
+function mostrarProgreso(){
+  document.getElementById("dashboard").style.display="none";
+  document.getElementById("contenidoModulo").style.display="none";
+  document.getElementById("progreso").style.display="block";
+
+  let html="<table border='1' width='100%' cellpadding='8'><tr><th>Módulo</th><th>Pretest</th><th>Caso</th><th>Juego</th><th>Postest</th><th>Final</th></tr>";
+
+  modulos.forEach(m=>{
+    let r=resultados[m.id];
+    if(r){
+      html+=`<tr>
+        <td>${m.titulo}</td>
+        <td>${r.pretest}</td>
+        <td>${r.caso}</td>
+        <td>${r.juego}</td>
+        <td>${r.postest}</td>
+        <td>${r.final}</td>
+      </tr>`;
+    }
+  });
+
+  html+="</table>";
+  document.getElementById("tablaResultados").innerHTML=html;
+  document.getElementById("progresoTexto").innerHTML=
+    "Estudiante: <b>"+estudiante.nombre+"</b> | Cédula: "+estudiante.cedula;
+}
+
+function cerrarSesion(){
+  localStorage.removeItem("estudianteMedInterna");
+  location.reload();
+}
+
+if(localStorage.getItem("estudianteMedInterna")){
+  iniciarApp();
+}
+</script>
+
+</body>
+</html>
