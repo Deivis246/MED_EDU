@@ -30,14 +30,6 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Serve frontend static files in production
-app.use(express.static(path.join(__dirname, "../../med-edu/dist")));
-
-// Fallback for SPA routing
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "../../med-edu/dist/index.html"));
-});
-
 app.use("/api", router);
 
 export default app;
