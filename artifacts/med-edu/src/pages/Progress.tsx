@@ -129,7 +129,7 @@ export default function Progress() {
                 <CheckCircle2 size={20} style={{ color: "#00c864" }} />
                 <div>
                   <p className="font-semibold text-sm" style={{ color: "#00c864" }}>¡Resultados enviados correctamente!</p>
-                  <p className="text-xs" style={{ color: "#7a9ab5" }}>Los datos han sido registrados en Google Sheets.</p>
+                  <p className="text-xs" style={{ color: "#7a9ab5" }}>Los datos han sido registrados en la Base de Datos.</p>
                 </div>
               </div>
             ) : (
