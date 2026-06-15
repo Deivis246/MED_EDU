@@ -1,6 +1,6 @@
 {
-  "buildCommand": "pnpm run build",
-  "outputDirectory": "artifacts/med-edu/dist",
+  "buildCommand": "cd ../.. && pnpm run build && cd artifacts/api-server && rm -rf dist-static && cp -r ../med-edu/dist dist-static",
+  "outputDirectory": "dist-static",
   "rewrites": [
     {
       "source": "/api/(.*)",
