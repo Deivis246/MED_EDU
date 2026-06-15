@@ -129,7 +129,7 @@ export default function Progress() {
                 <CheckCircle2 size={20} style={{ color: "#00c864" }} />
                 <div>
                   <p className="font-semibold text-sm" style={{ color: "#00c864" }}>¡Resultados enviados correctamente!</p>
-                  <p className="text-xs" style={{ color: "#7a9ab5" }}>Los datos han sido registrados en la Base de Datos.</p>
+                  <p className="text-xs" style={{ color: "#7a9ab5" }}>Tus datos están ahora en Google Sheets y Vercel Postgres.</p>
                 </div>
               </div>
             ) : (
@@ -143,7 +143,7 @@ export default function Progress() {
                   {sending ? (
                     <><Loader2 size={16} className="animate-spin" /> Enviando...</>
                   ) : (
-                    <><Send size={16} /> Enviar resultados a la Base de Datos</>
+                    <><Send size={16} /> Enviar a Google Sheets y Base de Datos</>
                   )}
                 </button>
                 {sendError && (
