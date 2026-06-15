@@ -143,7 +143,7 @@ export default function Progress() {
                   {sending ? (
                     <><Loader2 size={16} className="animate-spin" /> Enviando...</>
                   ) : (
-                    <><Send size={16} /> Enviar resultados a Google Sheets</>
+                    <><Send size={16} /> Enviar resultados a la Base de Datos</>
                   )}
                 </button>
                 {sendError && (
