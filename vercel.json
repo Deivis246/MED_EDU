@@ -1,4 +1,6 @@
 {
+  "buildCommand": "pnpm run build",
+  "outputDirectory": "artifacts/med-edu/dist",
   "rewrites": [
     {
       "source": "/api/(.*)",
