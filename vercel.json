@@ -1,4 +1,5 @@
 {
+  "framework": "vite",
   "buildCommand": "pnpm --filter @workspace/med-edu run build",
   "outputDirectory": "artifacts/med-edu/dist/public",
   "rewrites": [
