@@ -1,5 +1,5 @@
 {
-  "buildCommand": "cd ../.. && pnpm run build && cd artifacts/api-server && rm -rf dist-static && cp -r ../med-edu/dist dist-static",
+  "buildCommand": "pnpm run vercel-build",
   "outputDirectory": "dist-static",
   "rewrites": [
     {
