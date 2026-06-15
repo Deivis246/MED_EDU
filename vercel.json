@@ -1,6 +1,5 @@
 {
-  "buildCommand": "cd artifacts/med-edu && pnpm run build",
-  "outputDirectory": "artifacts/med-edu/dist",
+  "framework": "vite",
   "rewrites": [
     {
       "source": "/api/(.*)",
