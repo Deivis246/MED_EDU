@@ -5,8 +5,10 @@ import { modulos } from "@/data/modules";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Send, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Progress() {
+  const { toast } = useToast();
   const resultados = getResultados();
   const estudiante = getEstudiante();
   const pretestScore = getPretestGeneral();
