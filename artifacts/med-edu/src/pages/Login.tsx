@@ -12,14 +12,40 @@ export default function Login() {
   const [cedula, setCedula] = useState("");
   const [error, setError] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!nombre || !cedula) {
       setError("Todos los campos son obligatorios.");
       return;
     }
-    setEstudiante({ nombre, cedula, curso: "" });
-    setLocation("/dashboard");
+    setError("");
+    setLoading(true);
+
+    try {
+      const resp = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nombre, cedula }),
+      });
+      const data = await resp.json() as { error?: string, user?: { nombre: string, cedula: string, rol: string } };
+
+      if (!resp.ok) {
+        throw new Error(data.error || "Credenciales incorrectas.");
+      }
+
+      setEstudiante({ 
+        nombre: data.user?.nombre || nombre, 
+        cedula: data.user?.cedula || cedula, 
+        curso: data.user?.rol || "estudiante" 
+      });
+      setLocation("/dashboard");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Error de conexión.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -130,12 +156,13 @@ export default function Login() {
 
               <button
                 type="submit"
+                disabled={loading}
                 data-testid="button-acceder"
-                className="w-full flex items-center justify-center gap-2 font-bold py-3 rounded-xl mt-1 transition-all duration-200 hover:opacity-90 active:scale-[0.98]"
-                style={{ background: "linear-gradient(90deg, #00c8ff, #0096c7)", color: "#00111a", fontSize: "1rem", cursor: "pointer", border: "none" }}
+                className={`w-full flex items-center justify-center gap-2 font-bold py-3 rounded-xl mt-1 transition-all duration-200 ${loading ? 'opacity-70 cursor-not-allowed' : 'hover:opacity-90 active:scale-[0.98]'}`}
+                style={{ background: "linear-gradient(90deg, #00c8ff, #0096c7)", color: "#00111a", fontSize: "1rem", border: "none" }}
               >
-                Acceder
-                <ArrowRight size={18} />
+                {loading ? "Validando..." : "Acceder"}
+                {!loading && <ArrowRight size={18} />}
               </button>
 
             </form>
