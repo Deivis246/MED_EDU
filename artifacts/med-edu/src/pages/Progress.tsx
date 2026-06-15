@@ -23,7 +23,7 @@ export default function Progress() {
     setSendError("");
     setSent(false);
     try {
-      const resp = await fetch("/api/sheets/submit", {
+      const resp = await fetch("/api/results/submit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -34,10 +34,14 @@ export default function Progress() {
           postestGeneral: postestScore,
         })
       });
+      const data = await resp.json() as { error?: string };
       if (!resp.ok) {
-        const data = await resp.json() as { error?: string };
-        throw new Error(data.error || "Error desconocido");
+        throw new Error(data.error || "Error al enviar los resultados a la base de datos");
       }
+      toast({
+        title: "¡Éxito!",
+        description: "Tus resultados se han guardado en la base de datos.",
+      });
       setSent(true);
     } catch (e: unknown) {
       setSendError(e instanceof Error ? e.message : "Error al enviar. Intenta de nuevo.");
