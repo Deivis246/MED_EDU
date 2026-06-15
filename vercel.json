@@ -1,8 +1,14 @@
 {
+  "buildCommand": "pnpm --filter @workspace/med-edu exec vite build --config vite.config.ts --emptyOutDir --outDir ../../public",
+  "outputDirectory": "public",
   "rewrites": [
     {
       "source": "/api/(.*)",
       "destination": "/api/index.ts"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }
