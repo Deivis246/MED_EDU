@@ -1,7 +1,7 @@
 {
   "framework": "vite",
   "buildCommand": "pnpm --filter @workspace/med-edu run build",
-  "outputDirectory": "public",
+  "outputDirectory": "artifacts/med-edu/dist",
   "rewrites": [
     {
       "source": "/api/(.*)",
