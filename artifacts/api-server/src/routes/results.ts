@@ -124,7 +124,7 @@ router.get("/results/:cedula", async (req, res) => {
 
 router.post("/results/sync", async (req, res) => {
   try {
-    const { nombre, cedula, resultados, pretestGeneral, postestGeneral } = req.body;
+    const { nombre, cedula, pretestGeneral, postestGeneral, pretestRespuestas, postestRespuestas } = req.body;
     if (!cedula) {
        res.status(400).json({ error: "Faltan datos obligatorios (cedula)" });
        return;
@@ -138,7 +138,8 @@ router.post("/results/sync", async (req, res) => {
 
     if (existing.length > 0) {
       const updated = await db.update(studentResultsTable).set({
-        resultadosModulos: resultados || existing[0].resultadosModulos,
+        pretestRespuestas: pretestRespuestas || existing[0].pretestRespuestas,
+        postestRespuestas: postestRespuestas || existing[0].postestRespuestas,
         pretestGeneral: pretestGeneral !== undefined ? pretestGeneral : existing[0].pretestGeneral,
         postestGeneral: postestGeneral !== undefined ? postestGeneral : existing[0].postestGeneral,
       }).where(eq(studentResultsTable.id, existing[0].id)).returning();
@@ -149,13 +150,116 @@ router.post("/results/sync", async (req, res) => {
         cedula,
         pretestGeneral,
         postestGeneral,
-        resultadosModulos: resultados || {}
+        pretestRespuestas: pretestRespuestas || {},
+        postestRespuestas: postestRespuestas || {}
       }).returning();
       res.json({ success: true, action: "inserted", data: inserted[0] });
     }
+
+    // ======= GOOGLE SHEETS UPSERT LOGIC ========
+    const spreadsheetId = process.env.SPREADSHEET_ID;
+    if (spreadsheetId && process.env.GOOGLE_CLIENT_EMAIL && process.env.GOOGLE_PRIVATE_KEY) {
+      const now = new Date().toLocaleString("es-EC", { timeZone: "America/Guayaquil" });
+      
+      const upsertSheet = async (sheetName: string, notaFinal: number | null | undefined, respuestas: Record<string, number> | undefined) => {
+        if (!respuestas) return; // Only sync if we have responses for this test
+        
+        try {
+          // Get all current rows
+          const readResp = await sheets.spreadsheets.values.get({ spreadsheetId, range: `${sheetName}!A:C` });
+          const rows = readResp.data.values || [];
+          
+          let rowIndex = -1;
+          for (let i = 0; i < rows.length; i++) {
+            if (rows[i][2] === cedula) {
+              rowIndex = i + 1; // 1-indexed
+              break;
+            }
+          }
+
+          // Build row data
+          const rowData: any[] = [now, nombre || "", cedula, notaFinal != null ? `${notaFinal}%` : ""];
+          
+          // Add up to 150 answers to match headers
+          for (let i = 0; i < 150; i++) {
+             rowData.push(respuestas[i] !== undefined ? respuestas[i].toString() : "");
+          }
+
+          if (rowIndex !== -1) {
+            // Update existing row
+            await sheets.spreadsheets.values.update({
+              spreadsheetId,
+              range: `${sheetName}!A${rowIndex}`,
+              valueInputOption: "USER_ENTERED",
+              requestBody: { values: [rowData] }
+            });
+          } else {
+            // Append new row
+            await sheets.spreadsheets.values.append({
+              spreadsheetId,
+              range: `${sheetName}!A1`,
+              valueInputOption: "USER_ENTERED",
+              requestBody: { values: [rowData] }
+            });
+          }
+        } catch (e) {
+          logger.error({ err: String(e), sheetName }, "Failed to upsert to Google Sheets");
+        }
+      };
+
+      if (pretestRespuestas) await upsertSheet("Pretest", pretestGeneral, pretestRespuestas);
+      if (postestRespuestas) await upsertSheet("Postest", postestGeneral, postestRespuestas);
+
+    } else {
+      logger.warn("Google Sheets credentials or SPREADSHEET_ID missing, skipping Sheets integration");
+    }
+    // ==========================================
+
   } catch (err: unknown) {
     logger.error({ err }, "results/sync error");
     res.status(500).json({ error: "Error al sincronizar el progreso." });
+  }
+});
+
+router.get("/results/admin/setup-sheets", async (req, res) => {
+  try {
+    const spreadsheetId = process.env.SPREADSHEET_ID;
+    if (!spreadsheetId) throw new Error("Falta SPREADSHEET_ID");
+
+    try {
+      await sheets.spreadsheets.batchUpdate({
+        spreadsheetId,
+        requestBody: {
+          requests: [
+            { addSheet: { properties: { title: "Pretest" } } },
+            { addSheet: { properties: { title: "Postest" } } }
+          ]
+        }
+      });
+    } catch (e) {
+      // Ignore if sheets already exist
+    }
+
+    const headers = ["Fecha", "Nombre", "Cédula", "Nota Final"];
+    for (let i = 1; i <= 150; i++) headers.push(`Pregunta ${i}`);
+
+    await sheets.spreadsheets.values.update({
+      spreadsheetId,
+      range: "Pretest!A1",
+      valueInputOption: "USER_ENTERED",
+      requestBody: { values: [headers] }
+    });
+
+    await sheets.spreadsheets.values.update({
+      spreadsheetId,
+      range: "Postest!A1",
+      valueInputOption: "USER_ENTERED",
+      requestBody: { values: [headers] }
+    });
+
+    res.json({ success: true, message: "Google Sheets configurado correctamente" });
+  } catch (err: unknown) {
+    res.status(500).json({ error: String(err) });
   }
 });
 

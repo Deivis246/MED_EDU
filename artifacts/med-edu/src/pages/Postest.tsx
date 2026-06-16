@@ -113,7 +113,7 @@ export default function Postest() {
 
   const handleFinish = () => {
     const c = postestGeneral.filter((q, i) => answers[i] === q.c).length;
-    setPostestGeneral(Math.round((c / postestGeneral.length) * 100));
+    setPostestGeneral(Math.round((c / postestGeneral.length) * 100), answers);
     setFinished(true);
   };
 

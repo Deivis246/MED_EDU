@@ -21,7 +21,7 @@ export default function Pretest() {
 
   const handleFinish = () => {
     const c = pretestGeneral.filter((q, i) => answers[i] === q.c).length;
-    setPretestGeneral(Math.round((c / pretestGeneral.length) * 100));
+    setPretestGeneral(Math.round((c / pretestGeneral.length) * 100), answers);
     setFinished(true);
   };
 

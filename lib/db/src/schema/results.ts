@@ -8,7 +8,8 @@ export const studentResultsTable = pgTable("student_results", {
   cedula: text("cedula").notNull(),
   pretestGeneral: real("pretest_general"),
   postestGeneral: real("postest_general"),
-  resultadosModulos: jsonb("resultados_modulos").notNull(),
+  pretestRespuestas: jsonb("pretest_respuestas"),
+  postestRespuestas: jsonb("postest_respuestas"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
