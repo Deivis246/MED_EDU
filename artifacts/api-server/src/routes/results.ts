@@ -115,8 +115,8 @@ router.post("/results/sync", async (req, res) => {
           // Build row data
           const rowData: any[] = [now, nombre || "", cedula, notaFinal != null ? `${notaFinal}%` : ""];
           
-          // Add up to 150 answers to match headers
-          for (let i = 0; i < 150; i++) {
+          // Add up to 250 answers to match headers
+          for (let i = 0; i < 250; i++) {
              rowData.push(respuestas[i] !== undefined ? respuestas[i].toString() : "");
           }
 
@@ -176,16 +176,16 @@ router.get("/results/admin/setup-sheets", async (req, res) => {
     }
 
     const headers = ["Fecha", "Nombre", "Cédula", "Nota Final"];
-    for (let i = 1; i <= 150; i++) headers.push(`Pregunta ${i}`);
+    for (let i = 1; i <= 250; i++) headers.push(`Pregunta ${i}`);
 
-    await sheets.spreadsheets.values.update({
+    await sheets.spreadsheets.values.append({
       spreadsheetId,
       range: "Pretest!A1",
       valueInputOption: "USER_ENTERED",
       requestBody: { values: [headers] }
     });
 
-    await sheets.spreadsheets.values.update({
+    await sheets.spreadsheets.values.append({
       spreadsheetId,
       range: "Postest!A1",
       valueInputOption: "USER_ENTERED",

@@ -36,10 +36,11 @@ export const getResultados = (): Resultados => {
 };
 
 export async function syncToBackend() {
-  const cedula = localStorage.getItem("med_edu_cedula");
-  const nombre = localStorage.getItem("med_edu_nombre");
-  
-  if (!cedula) return; // No user logged in
+  const estudiante = getEstudiante();
+  if (!estudiante) return; // No user logged in
+
+  const cedula = estudiante.cedula;
+  const nombre = estudiante.nombre;
   
   const pretestGeneral = getPretestGeneral();
   const postestGeneral = getPostestGeneral();

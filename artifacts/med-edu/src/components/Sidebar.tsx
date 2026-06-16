@@ -21,7 +21,7 @@ export default function Sidebar({ children }: { children: React.ReactNode }) {
   ];
 
   return (
-    <div className="flex min-h-screen w-full bg-background text-foreground dark">
+    <div className="flex h-screen w-full bg-background text-foreground dark overflow-hidden">
       {/* Sidebar */}
       <aside className="w-[230px] flex-shrink-0 flex flex-col border-r border-border bg-card">
         {/* Brand */}
