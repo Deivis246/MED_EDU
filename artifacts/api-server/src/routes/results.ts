@@ -78,7 +78,7 @@ router.post("/results/sync", async (req, res) => {
         pretestGeneral: pretestGeneral !== undefined ? pretestGeneral : existing[0].pretestGeneral,
         postestGeneral: postestGeneral !== undefined ? postestGeneral : existing[0].postestGeneral,
       }).where(eq(studentResultsTable.id, existing[0].id)).returning();
-      res.json({ success: true, action: "updated", data: updated[0] });
+      // res.json({ success: true, action: "updated", data: updated[0] });
     } else {
       const inserted = await db.insert(studentResultsTable).values({
         nombre: nombre || "",
@@ -88,7 +88,7 @@ router.post("/results/sync", async (req, res) => {
         pretestRespuestas: pretestRespuestas || {},
         postestRespuestas: postestRespuestas || {}
       }).returning();
-      res.json({ success: true, action: "inserted", data: inserted[0] });
+      // res.json({ success: true, action: "inserted", data: inserted[0] });
     }
 
     // ======= GOOGLE SHEETS UPSERT LOGIC ========
@@ -139,11 +139,18 @@ router.post("/results/sync", async (req, res) => {
           }
         } catch (e) {
           logger.error({ err: String(e), sheetName }, "Failed to upsert to Google Sheets");
+          return String(e);
         }
+        return null;
       };
 
-      if (pretestRespuestas) await upsertSheet("Pretest", pretestGeneral, pretestRespuestas);
-      if (postestRespuestas) await upsertSheet("Postest", postestGeneral, postestRespuestas);
+      const err1 = pretestRespuestas ? await upsertSheet("Pretest", pretestGeneral, pretestRespuestas) : null;
+      const err2 = postestRespuestas ? await upsertSheet("Postest", postestGeneral, postestRespuestas) : null;
+      
+      const sheetsError = err1 || err2;
+
+      res.json({ success: true, action: existing.length > 0 ? "updated" : "inserted", sheetsError });
+      return;
 
     } else {
       logger.warn("Google Sheets credentials or SPREADSHEET_ID missing, skipping Sheets integration");
