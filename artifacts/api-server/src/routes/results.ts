@@ -59,7 +59,7 @@ router.get("/results/:cedula", async (req, res) => {
 
 router.post("/results/sync", async (req, res) => {
   try {
-    const { nombre, cedula, pretestGeneral, postestGeneral, pretestRespuestas, postestRespuestas, resultadosModulos, forceAppendModulos } = req.body;
+    const { nombre, cedula, pretestGeneral, postestGeneral, pretestRespuestas, postestRespuestas, resultadosModulos } = req.body;
     if (!cedula) {
        res.status(400).json({ error: "Faltan datos obligatorios (cedula)" });
        return;
@@ -160,12 +160,10 @@ router.post("/results/sync", async (req, res) => {
           const readResp = await sheets.spreadsheets.values.get({ spreadsheetId, range: `${sheetName}!A:C` });
           const rows = readResp.data.values || [];
           let rowIndex = -1;
-          if (!forceAppendModulos) {
-            for (let i = 0; i < rows.length; i++) {
-              if (rows[i][2] === cedula) {
-                rowIndex = i + 1;
-                break;
-              }
+          for (let i = 0; i < rows.length; i++) {
+            if (rows[i][2] === cedula) {
+              rowIndex = i + 1;
+              break;
             }
           }
           

@@ -18,7 +18,7 @@ export default function Progress() {
 
   const handleManualSync = async () => {
     try {
-      await syncToBackend("modulos", true);
+      await syncToBackend("modulos");
       toast({
         title: "¡Enviado a Google Sheets!",
         description: "El progreso de tus módulos ha sido añadido a la hoja de Módulos.",
