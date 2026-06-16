@@ -16,41 +16,7 @@ export default function Progress() {
 
   const completedModules = modulos.filter(m => resultados[m.id]?.avance === 100);
 
-  const [sending, setSending] = useState(false);
-  const [sent, setSent] = useState(false);
-  const [sendError, setSendError] = useState("");
-
-  const handleSubmitToSheets = async () => {
-    setSending(true);
-    setSendError("");
-    setSent(false);
-    try {
-      const resp = await fetch("/api/results/submit", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          nombre: estudiante?.nombre,
-          cedula: estudiante?.cedula,
-          resultados,
-          pretestGeneral: pretestScore,
-          postestGeneral: postestScore,
-        })
-      });
-      const data = await resp.json() as { error?: string };
-      if (!resp.ok) {
-        throw new Error(data.error || "Error al enviar los resultados a la base de datos");
-      }
-      toast({
-        title: "¡Éxito!",
-        description: "Tus resultados se han guardado en la base de datos.",
-      });
-      setSent(true);
-    } catch (e: unknown) {
-      setSendError(e instanceof Error ? e.message : "Error al enviar. Intenta de nuevo.");
-    } finally {
-      setSending(false);
-    }
-  };
+  // Los resultados se sincronizan automáticamente ahora.
 
   return (
     <Sidebar>
@@ -122,39 +88,7 @@ export default function Progress() {
             </div>
           )}
 
-          {/* Submit button */}
-          <div className="pt-2 border-t border-border">
-            {sent ? (
-              <div className="flex items-center gap-3 p-4 rounded-xl" style={{ background: "rgba(0,200,100,0.1)", border: "1px solid rgba(0,200,100,0.3)" }}>
-                <CheckCircle2 size={20} style={{ color: "#00c864" }} />
-                <div>
-                  <p className="font-semibold text-sm" style={{ color: "#00c864" }}>¡Resultados enviados correctamente!</p>
-                  <p className="text-xs" style={{ color: "#7a9ab5" }}>Tus datos están ahora en Google Sheets y Vercel Postgres.</p>
-                </div>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                <button
-                  onClick={handleSubmitToSheets}
-                  disabled={sending}
-                  className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm transition-all duration-200 hover:opacity-90 active:scale-[0.99] disabled:opacity-60"
-                  style={{ background: "linear-gradient(90deg,#00c8ff,#0096c7)", color: "#00111a", border: "none", cursor: sending ? "not-allowed" : "pointer" }}
-                >
-                  {sending ? (
-                    <><Loader2 size={16} className="animate-spin" /> Enviando...</>
-                  ) : (
-                    <><Send size={16} /> Enviar a Google Sheets y Base de Datos</>
-                  )}
-                </button>
-                {sendError && (
-                  <div className="flex items-center gap-2 p-3 rounded-lg" style={{ background: "rgba(255,80,80,0.1)", border: "1px solid rgba(255,80,80,0.25)" }}>
-                    <AlertCircle size={16} style={{ color: "#ff6b6b" }} />
-                    <p className="text-sm" style={{ color: "#ff6b6b" }}>{sendError}</p>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
+          {/* Envio manual eliminado */}
         </div>
       </div>
     </Sidebar>
