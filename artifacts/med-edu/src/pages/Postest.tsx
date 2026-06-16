@@ -113,7 +113,17 @@ export default function Postest() {
 
   const handleFinish = () => {
     const c = postestGeneral.filter((q, i) => answers[i] === q.c).length;
-    setPostestGeneral(Math.round((c / postestGeneral.length) * 100), answers);
+
+    const formattedAnswers: Record<number, string> = {};
+    for (let i = 0; i < postestGeneral.length; i++) {
+      if (answers[i] === postestGeneral[i].c) {
+        formattedAnswers[i] = "CORRECTO";
+      } else {
+        formattedAnswers[i] = "INCORRECTO";
+      }
+    }
+
+    setPostestGeneral(Math.round((c / postestGeneral.length) * 100), formattedAnswers);
     setFinished(true);
   };
 

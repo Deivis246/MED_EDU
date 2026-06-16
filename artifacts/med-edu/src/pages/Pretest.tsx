@@ -21,7 +21,17 @@ export default function Pretest() {
 
   const handleFinish = () => {
     const c = pretestGeneral.filter((q, i) => answers[i] === q.c).length;
-    setPretestGeneral(Math.round((c / pretestGeneral.length) * 100), answers);
+    
+    const formattedAnswers: Record<number, string> = {};
+    for (let i = 0; i < pretestGeneral.length; i++) {
+      if (answers[i] === pretestGeneral[i].c) {
+        formattedAnswers[i] = "CORRECTO";
+      } else {
+        formattedAnswers[i] = "INCORRECTO";
+      }
+    }
+
+    setPretestGeneral(Math.round((c / pretestGeneral.length) * 100), formattedAnswers);
     setFinished(true);
   };
 

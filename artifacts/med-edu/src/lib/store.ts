@@ -79,7 +79,7 @@ export const getPretestGeneral = (): number | null => {
   return data !== null ? JSON.parse(data) : null;
 };
 
-export function setPretestGeneral(score: number, answers?: Record<number, number>) {
+export function setPretestGeneral(score: number, answers?: Record<number, string | number>) {
   localStorage.setItem("pretestGeneralScore", score.toString());
   if (answers) {
     localStorage.setItem("med_edu_pretest_answers", JSON.stringify(answers));
@@ -92,7 +92,7 @@ export const getPostestGeneral = (): number | null => {
   return data !== null ? JSON.parse(data) : null;
 };
 
-export function setPostestGeneral(score: number, answers?: Record<number, number>) {
+export function setPostestGeneral(score: number, answers?: Record<number, string | number>) {
   localStorage.setItem("postestGeneralScore", score.toString());
   if (answers) {
     localStorage.setItem("med_edu_postest_answers", JSON.stringify(answers));
