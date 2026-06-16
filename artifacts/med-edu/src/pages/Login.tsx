@@ -17,10 +17,25 @@ export default function Login() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!nombre || !cedula) {
+    
+    const cleanNombre = nombre.trim();
+    const cleanCedula = cedula.trim();
+
+    if (!cleanNombre || !cleanCedula) {
       setError("Todos los campos son obligatorios.");
       return;
     }
+
+    if (!/^[0-9]+$/.test(cleanCedula)) {
+      setError("La cédula solo debe contener números.");
+      return;
+    }
+
+    if (/\d/.test(cleanNombre)) {
+      setError("El nombre no debe contener números.");
+      return;
+    }
+
     setError("");
     setLoading(true);
 
