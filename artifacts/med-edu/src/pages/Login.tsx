@@ -52,6 +52,13 @@ export default function Login() {
         throw new Error(data.error || (isRegistering ? "Error al registrar." : "Credenciales incorrectas."));
       }
 
+      // Clear previous progress from localStorage to avoid state bleed
+      localStorage.removeItem("resultadosMedInterna");
+      localStorage.removeItem("pretestGeneralScore");
+      localStorage.removeItem("postestGeneralScore");
+      localStorage.removeItem("med_edu_pretest_answers");
+      localStorage.removeItem("med_edu_postest_answers");
+
       // Fetch progress
       try {
         const resultsResp = await fetch(`/api/results/${cedula}`);

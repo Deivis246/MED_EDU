@@ -28,6 +28,11 @@ export const setEstudiante = (estudiante: Estudiante) => {
 
 export const clearEstudiante = () => {
   localStorage.removeItem("estudianteMedInterna");
+  localStorage.removeItem("resultadosMedInterna");
+  localStorage.removeItem("pretestGeneralScore");
+  localStorage.removeItem("postestGeneralScore");
+  localStorage.removeItem("med_edu_pretest_answers");
+  localStorage.removeItem("med_edu_postest_answers");
 };
 
 export const getResultados = (): Resultados => {
