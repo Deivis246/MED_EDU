@@ -112,8 +112,15 @@ router.post("/results/sync", async (req, res) => {
             }
           }
 
+          let acertadas = 0;
+          let total = sheetName === "Postest" ? 249 : 249; // Both have 249
+          if (respuestas) {
+            acertadas = Object.values(respuestas).filter(v => v === "CORRECTO").length;
+          }
+          const notaFraction = notaFinal != null ? `${acertadas}/${total} (${notaFinal}%)` : "";
+
           // Build row data
-          const rowData: any[] = [now, nombre || "", cedula, notaFinal != null ? `${notaFinal}%` : ""];
+          const rowData: any[] = [now, nombre || "", cedula, notaFraction];
           
           // Add up to 250 answers to match headers
           for (let i = 0; i < 250; i++) {

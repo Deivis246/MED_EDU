@@ -35,7 +35,7 @@ export const getResultados = (): Resultados => {
   return data ? JSON.parse(data) : {};
 };
 
-export async function syncToBackend() {
+export async function syncToBackend(testType?: "pretest" | "postest") {
   const estudiante = getEstudiante();
   if (!estudiante) return; // No user logged in
 
@@ -53,8 +53,8 @@ export async function syncToBackend() {
     nombre,
     pretestGeneral: pretestGeneral !== null ? pretestGeneral : undefined,
     postestGeneral: postestGeneral !== null ? postestGeneral : undefined,
-    pretestRespuestas: pretestAnsStr ? JSON.parse(pretestAnsStr) : undefined,
-    postestRespuestas: postestAnsStr ? JSON.parse(postestAnsStr) : undefined,
+    pretestRespuestas: (testType === "pretest" || !testType) && pretestAnsStr ? JSON.parse(pretestAnsStr) : undefined,
+    postestRespuestas: (testType === "postest" || !testType) && postestAnsStr ? JSON.parse(postestAnsStr) : undefined,
   };
 
   try {
@@ -84,7 +84,7 @@ export function setPretestGeneral(score: number, answers?: Record<number, string
   if (answers) {
     localStorage.setItem("med_edu_pretest_answers", JSON.stringify(answers));
   }
-  syncToBackend();
+  syncToBackend("pretest");
 }
 
 export const getPostestGeneral = (): number | null => {
@@ -97,5 +97,5 @@ export function setPostestGeneral(score: number, answers?: Record<number, string
   if (answers) {
     localStorage.setItem("med_edu_postest_answers", JSON.stringify(answers));
   }
-  syncToBackend();
+  syncToBackend("postest");
 }
