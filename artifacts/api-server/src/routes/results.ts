@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { logger } from "../lib/logger.js";
 import { db, insertResultSchema, studentResultsTable } from "@workspace/db";
+import { eq, desc } from "drizzle-orm";
 import { google } from "googleapis";
 
 const router = Router();
@@ -97,6 +98,64 @@ router.post("/results/submit", async (req, res) => {
     const message = err instanceof Error ? err.message : String(err);
     logger.error({ err: message }, "results/submit error");
     res.status(500).json({ error: message });
+  }
+});
+
+router.get("/results/:cedula", async (req, res) => {
+  try {
+    const { cedula } = req.params;
+    const results = await db.select()
+      .from(studentResultsTable)
+      .where(eq(studentResultsTable.cedula, cedula))
+      .orderBy(desc(studentResultsTable.id))
+      .limit(1);
+    
+    if (results.length === 0) {
+      res.json({ success: true, data: null });
+      return;
+    }
+    
+    res.json({ success: true, data: results[0] });
+  } catch (err: unknown) {
+    logger.error({ err }, "results/get error");
+    res.status(500).json({ error: "Error al recuperar el progreso." });
+  }
+});
+
+router.post("/results/sync", async (req, res) => {
+  try {
+    const { nombre, cedula, resultados, pretestGeneral, postestGeneral } = req.body;
+    if (!cedula) {
+       res.status(400).json({ error: "Faltan datos obligatorios (cedula)" });
+       return;
+    }
+
+    const existing = await db.select()
+      .from(studentResultsTable)
+      .where(eq(studentResultsTable.cedula, cedula))
+      .orderBy(desc(studentResultsTable.id))
+      .limit(1);
+
+    if (existing.length > 0) {
+      const updated = await db.update(studentResultsTable).set({
+        resultadosModulos: resultados || existing[0].resultadosModulos,
+        pretestGeneral: pretestGeneral !== undefined ? pretestGeneral : existing[0].pretestGeneral,
+        postestGeneral: postestGeneral !== undefined ? postestGeneral : existing[0].postestGeneral,
+      }).where(eq(studentResultsTable.id, existing[0].id)).returning();
+      res.json({ success: true, action: "updated", data: updated[0] });
+    } else {
+      const inserted = await db.insert(studentResultsTable).values({
+        nombre: nombre || "",
+        cedula,
+        pretestGeneral,
+        postestGeneral,
+        resultadosModulos: resultados || {}
+      }).returning();
+      res.json({ success: true, action: "inserted", data: inserted[0] });
+    }
+  } catch (err: unknown) {
+    logger.error({ err }, "results/sync error");
+    res.status(500).json({ error: "Error al sincronizar el progreso." });
   }
 });
 

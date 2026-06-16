@@ -13,6 +13,7 @@ export default function Login() {
   const [error, setError] = useState("");
 
   const [loading, setLoading] = useState(false);
+  const [isRegistering, setIsRegistering] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,7 +25,8 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const resp = await fetch("/api/auth/login", {
+      const endpoint = isRegistering ? "/api/auth/register" : "/api/auth/login";
+      const resp = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ nombre, cedula }),
@@ -32,7 +34,28 @@ export default function Login() {
       const data = await resp.json() as { error?: string, user?: { nombre: string, cedula: string, rol: string } };
 
       if (!resp.ok) {
-        throw new Error(data.error || "Credenciales incorrectas.");
+        throw new Error(data.error || (isRegistering ? "Error al registrar." : "Credenciales incorrectas."));
+      }
+
+      // Fetch progress
+      try {
+        const resultsResp = await fetch(`/api/results/${cedula}`);
+        if (resultsResp.ok) {
+          const { data: resultsData } = await resultsResp.json();
+          if (resultsData) {
+            if (resultsData.resultadosModulos) {
+              localStorage.setItem("resultadosMedInterna", JSON.stringify(resultsData.resultadosModulos));
+            }
+            if (resultsData.pretestGeneral !== null && resultsData.pretestGeneral !== undefined) {
+              localStorage.setItem("pretestGeneralScore", JSON.stringify(resultsData.pretestGeneral));
+            }
+            if (resultsData.postestGeneral !== null && resultsData.postestGeneral !== undefined) {
+              localStorage.setItem("postestGeneralScore", JSON.stringify(resultsData.postestGeneral));
+            }
+          }
+        }
+      } catch (err) {
+        console.error("Failed to fetch progress", err);
       }
 
       setEstudiante({ 
@@ -122,8 +145,8 @@ export default function Login() {
           className="w-full max-w-sm"
         >
           <div className="rounded-2xl p-8" style={{ background: "#111c2e", border: "1px solid rgba(0,200,255,0.12)", boxShadow: "0 0 40px rgba(0,0,0,0.5)" }}>
-            <h2 className="text-2xl font-bold mb-1" style={{ color: "#ffffff" }}>Ingreso al Campus</h2>
-            <p className="text-sm mb-7" style={{ color: "#7a9ab5" }}>Ingrese sus datos para continuar su progreso</p>
+            <h2 className="text-2xl font-bold mb-1" style={{ color: "#ffffff" }}>{isRegistering ? "Registro de Estudiante" : "Ingreso al Campus"}</h2>
+            <p className="text-sm mb-7" style={{ color: "#7a9ab5" }}>{isRegistering ? "Cree su cuenta para empezar" : "Ingrese sus datos para continuar su progreso"}</p>
 
             <form onSubmit={handleSubmit} className="flex flex-col gap-5">
               <div className="flex flex-col gap-2">
@@ -161,9 +184,20 @@ export default function Login() {
                 className={`w-full flex items-center justify-center gap-2 font-bold py-3 rounded-xl mt-1 transition-all duration-200 ${loading ? 'opacity-70 cursor-not-allowed' : 'hover:opacity-90 active:scale-[0.98]'}`}
                 style={{ background: "linear-gradient(90deg, #00c8ff, #0096c7)", color: "#00111a", fontSize: "1rem", border: "none" }}
               >
-                {loading ? "Validando..." : "Acceder"}
+                {loading ? "Procesando..." : (isRegistering ? "Registrarse" : "Acceder")}
                 {!loading && <ArrowRight size={18} />}
               </button>
+
+              <div className="mt-4 text-center">
+                <button
+                  type="button"
+                  onClick={() => setIsRegistering(!isRegistering)}
+                  className="text-sm hover:underline"
+                  style={{ color: "#00c8ff" }}
+                >
+                  {isRegistering ? "¿Ya tienes cuenta? Inicia sesión aquí" : "¿No tienes cuenta? Regístrate aquí"}
+                </button>
+              </div>
 
             </form>
           </div>

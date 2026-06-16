@@ -45,4 +45,34 @@ router.post("/auth/login", async (req, res) => {
   }
 });
 
+router.post("/auth/register", async (req, res) => {
+  try {
+    const { nombre, cedula } = req.body as { nombre: string; cedula: string };
+
+    if (!nombre || !cedula) {
+      res.status(400).json({ error: "Nombre y cédula son requeridos." });
+      return;
+    }
+
+    const existingUser = await db.select().from(usersTable).where(eq(usersTable.cedula, cedula)).limit(1);
+    if (existingUser.length > 0) {
+      res.status(400).json({ error: "La cédula ya está registrada." });
+      return;
+    }
+
+    const insertedUser = await db.insert(usersTable).values({
+      nombre: nombre.trim(),
+      cedula: cedula.trim(),
+      rol: "estudiante"
+    }).returning();
+
+    logger.info({ cedula }, "User registered successfully");
+    res.json({ success: true, user: insertedUser[0] });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
+    logger.error({ err: message }, "auth/register error");
+    res.status(500).json({ error: "Error de servidor al intentar registrar." });
+  }
+});
+
 export default router;

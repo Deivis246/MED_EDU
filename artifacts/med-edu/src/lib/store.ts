@@ -35,10 +35,36 @@ export const getResultados = (): Resultados => {
   return data ? JSON.parse(data) : {};
 };
 
+export const syncToBackend = async () => {
+  const estudiante = getEstudiante();
+  if (!estudiante) return;
+
+  const resultados = getResultados();
+  const pretestGeneral = getPretestGeneral();
+  const postestGeneral = getPostestGeneral();
+
+  try {
+    await fetch("/api/results/sync", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        nombre: estudiante.nombre,
+        cedula: estudiante.cedula,
+        resultados,
+        pretestGeneral,
+        postestGeneral
+      })
+    });
+  } catch (err) {
+    console.error("Failed to sync to backend", err);
+  }
+};
+
 export const saveResultado = (moduloId: string, resultado: ModuloResultado) => {
   const current = getResultados();
   current[moduloId] = resultado;
   localStorage.setItem("resultadosMedInterna", JSON.stringify(current));
+  syncToBackend();
 };
 
 export const getPretestGeneral = (): number | null => {
@@ -48,6 +74,7 @@ export const getPretestGeneral = (): number | null => {
 
 export const setPretestGeneral = (score: number) => {
   localStorage.setItem("pretestGeneralScore", JSON.stringify(score));
+  syncToBackend();
 };
 
 export const getPostestGeneral = (): number | null => {
@@ -57,4 +84,5 @@ export const getPostestGeneral = (): number | null => {
 
 export const setPostestGeneral = (score: number) => {
   localStorage.setItem("postestGeneralScore", JSON.stringify(score));
+  syncToBackend();
 };
