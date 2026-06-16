@@ -86,6 +86,7 @@ export default function Dashboard() {
             {modulos.map((modulo, i) => {
               const res = resultados[modulo.id];
               const avance = res?.avance || 0;
+              const finalScore = res?.final || 0;
               const isCompleted = avance === 100;
 
               return (
@@ -126,9 +127,9 @@ export default function Dashboard() {
                       <div className="space-y-1.5">
                         <div className="flex justify-between text-xs" style={{ color: "#7a9ab5" }}>
                           <span>Progreso</span>
-                          <span className="font-semibold text-white">{avance}%</span>
+                          <span className="font-semibold text-white">{finalScore}%</span>
                         </div>
-                        <Progress value={avance} className="h-1.5" />
+                        <Progress value={finalScore} className="h-1.5" />
                       </div>
                     </CardContent>
 

@@ -170,7 +170,7 @@ router.post("/results/sync", async (req, res) => {
           const rowData: any[] = [now, nombre || "", cedula];
           for (const mod of MODULE_IDS) {
             const m = resModulos[mod.id];
-            rowData.push(m && m.avance !== undefined ? `${m.avance}%` : "");
+            rowData.push(m && m.final !== undefined ? `${m.final}%` : "");
           }
 
           if (rowIndex !== -1) {
