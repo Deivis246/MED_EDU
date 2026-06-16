@@ -59,7 +59,7 @@ router.get("/results/:cedula", async (req, res) => {
 
 router.post("/results/sync", async (req, res) => {
   try {
-    const { nombre, cedula, pretestGeneral, postestGeneral, pretestRespuestas, postestRespuestas } = req.body;
+    const { nombre, cedula, pretestGeneral, postestGeneral, pretestRespuestas, postestRespuestas, resultadosModulos } = req.body;
     if (!cedula) {
        res.status(400).json({ error: "Faltan datos obligatorios (cedula)" });
        return;
@@ -77,6 +77,7 @@ router.post("/results/sync", async (req, res) => {
         postestRespuestas: postestRespuestas || existing[0].postestRespuestas,
         pretestGeneral: pretestGeneral !== undefined ? pretestGeneral : existing[0].pretestGeneral,
         postestGeneral: postestGeneral !== undefined ? postestGeneral : existing[0].postestGeneral,
+        resultadosModulos: resultadosModulos || existing[0].resultadosModulos,
       }).where(eq(studentResultsTable.id, existing[0].id)).returning();
       // res.json({ success: true, action: "updated", data: updated[0] });
     } else {
@@ -86,7 +87,8 @@ router.post("/results/sync", async (req, res) => {
         pretestGeneral,
         postestGeneral,
         pretestRespuestas: pretestRespuestas || {},
-        postestRespuestas: postestRespuestas || {}
+        postestRespuestas: postestRespuestas || {},
+        resultadosModulos: resultadosModulos || {}
       }).returning();
       // res.json({ success: true, action: "inserted", data: inserted[0] });
     }
@@ -151,10 +153,53 @@ router.post("/results/sync", async (req, res) => {
         return null;
       };
 
+      const upsertSheetModulos = async (resModulos: Record<string, any>) => {
+        if (!resModulos || Object.keys(resModulos).length === 0) return null;
+        try {
+          const sheetName = "Módulos";
+          const readResp = await sheets.spreadsheets.values.get({ spreadsheetId, range: `${sheetName}!A:C` });
+          const rows = readResp.data.values || [];
+          let rowIndex = -1;
+          for (let i = 0; i < rows.length; i++) {
+            if (rows[i][2] === cedula) {
+              rowIndex = i + 1;
+              break;
+            }
+          }
+          
+          const rowData: any[] = [now, nombre || "", cedula];
+          for (const mod of MODULE_IDS) {
+            const m = resModulos[mod.id];
+            rowData.push(m && m.avance !== undefined ? `${m.avance}%` : "");
+          }
+
+          if (rowIndex !== -1) {
+            await sheets.spreadsheets.values.update({
+              spreadsheetId,
+              range: `${sheetName}!A${rowIndex}`,
+              valueInputOption: "USER_ENTERED",
+              requestBody: { values: [rowData] }
+            });
+          } else {
+            await sheets.spreadsheets.values.append({
+              spreadsheetId,
+              range: `${sheetName}!A1`,
+              valueInputOption: "USER_ENTERED",
+              requestBody: { values: [rowData] }
+            });
+          }
+        } catch (e) {
+          logger.error({ err: String(e) }, "Failed to upsert to Módulos Google Sheet");
+          return String(e);
+        }
+        return null;
+      };
+
       const err1 = pretestRespuestas ? await upsertSheet("Pretest", pretestGeneral, pretestRespuestas) : null;
       const err2 = postestRespuestas ? await upsertSheet("Postest", postestGeneral, postestRespuestas) : null;
+      const err3 = resultadosModulos ? await upsertSheetModulos(resultadosModulos) : null;
       
-      const sheetsError = err1 || err2;
+      const sheetsError = err1 || err2 || err3;
 
       res.json({ success: true, action: existing.length > 0 ? "updated" : "inserted", sheetsError });
       return;
@@ -181,7 +226,8 @@ router.get("/results/admin/setup-sheets", async (req, res) => {
         requestBody: {
           requests: [
             { addSheet: { properties: { title: "Pretest" } } },
-            { addSheet: { properties: { title: "Postest" } } }
+            { addSheet: { properties: { title: "Postest" } } },
+            { addSheet: { properties: { title: "Módulos" } } }
           ]
         }
       });
@@ -204,6 +250,18 @@ router.get("/results/admin/setup-sheets", async (req, res) => {
       range: "Postest!A1",
       valueInputOption: "USER_ENTERED",
       requestBody: { values: [headers] }
+    });
+
+    const headersModulos = ["Fecha", "Nombre", "Cédula"];
+    for (const mod of MODULE_IDS) {
+      headersModulos.push(mod.label);
+    }
+    
+    await sheets.spreadsheets.values.append({
+      spreadsheetId,
+      range: "Módulos!A1",
+      valueInputOption: "USER_ENTERED",
+      requestBody: { values: [headersModulos] }
     });
 
     res.json({ success: true, message: "Google Sheets configurado correctamente" });

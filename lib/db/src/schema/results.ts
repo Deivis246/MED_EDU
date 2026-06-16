@@ -10,6 +10,7 @@ export const studentResultsTable = pgTable("student_results", {
   postestGeneral: real("postest_general"),
   pretestRespuestas: jsonb("pretest_respuestas"),
   postestRespuestas: jsonb("postest_respuestas"),
+  resultadosModulos: jsonb("resultados_modulos"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

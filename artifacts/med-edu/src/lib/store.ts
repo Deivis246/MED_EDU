@@ -40,7 +40,7 @@ export const getResultados = (): Resultados => {
   return data ? JSON.parse(data) : {};
 };
 
-export async function syncToBackend(testType?: "pretest" | "postest") {
+export async function syncToBackend(testType?: "pretest" | "postest" | "modulos") {
   const estudiante = getEstudiante();
   if (!estudiante) return; // No user logged in
 
@@ -60,6 +60,7 @@ export async function syncToBackend(testType?: "pretest" | "postest") {
     postestGeneral: postestGeneral !== null ? postestGeneral : undefined,
     pretestRespuestas: (testType === "pretest" || !testType) && pretestAnsStr ? JSON.parse(pretestAnsStr) : undefined,
     postestRespuestas: (testType === "postest" || !testType) && postestAnsStr ? JSON.parse(postestAnsStr) : undefined,
+    resultadosModulos: (testType === "modulos" || !testType) ? getResultados() : undefined,
   };
 
   try {
@@ -77,6 +78,7 @@ export const saveResultado = (moduloId: string, resultado: ModuloResultado) => {
   const current = getResultados();
   current[moduloId] = resultado;
   localStorage.setItem("resultadosMedInterna", JSON.stringify(current));
+  syncToBackend("modulos");
 };
 
 export const getPretestGeneral = (): number | null => {
