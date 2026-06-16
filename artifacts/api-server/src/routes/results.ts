@@ -176,14 +176,14 @@ router.post("/results/sync", async (req, res) => {
           if (rowIndex !== -1) {
             await sheets.spreadsheets.values.update({
               spreadsheetId,
-              range: `${sheetName}!A${rowIndex}`,
+              range: `'${sheetName}'!A${rowIndex}`,
               valueInputOption: "USER_ENTERED",
               requestBody: { values: [rowData] }
             });
           } else {
             await sheets.spreadsheets.values.append({
               spreadsheetId,
-              range: `${sheetName}!A1`,
+              range: `'${sheetName}'!A1`,
               valueInputOption: "USER_ENTERED",
               requestBody: { values: [rowData] }
             });
@@ -220,20 +220,22 @@ router.get("/results/admin/setup-sheets", async (req, res) => {
     const spreadsheetId = process.env.SPREADSHEET_ID;
     if (!spreadsheetId) throw new Error("Falta SPREADSHEET_ID");
 
-    try {
-      await sheets.spreadsheets.batchUpdate({
-        spreadsheetId,
-        requestBody: {
-          requests: [
-            { addSheet: { properties: { title: "Pretest" } } },
-            { addSheet: { properties: { title: "Postest" } } },
-            { addSheet: { properties: { title: "Módulos" } } }
-          ]
-        }
-      });
-    } catch (e) {
-      // Ignore if sheets already exist
-    }
+    const addSheetSafe = async (title: string) => {
+      try {
+        await sheets.spreadsheets.batchUpdate({
+          spreadsheetId,
+          requestBody: {
+            requests: [{ addSheet: { properties: { title } } }]
+          }
+        });
+      } catch (e) {
+        // Ignore if exists
+      }
+    };
+
+    await addSheetSafe("Pretest");
+    await addSheetSafe("Postest");
+    await addSheetSafe("Módulos");
 
     const headers = ["Fecha", "Nombre", "Cédula", "Nota Final"];
     for (let i = 1; i <= 250; i++) headers.push(`Pregunta ${i}`);
@@ -257,12 +259,18 @@ router.get("/results/admin/setup-sheets", async (req, res) => {
       headersModulos.push(mod.label);
     }
     
-    await sheets.spreadsheets.values.append({
-      spreadsheetId,
-      range: "Módulos!A1",
-      valueInputOption: "USER_ENTERED",
-      requestBody: { values: [headersModulos] }
-    });
+    // Only append headers if we're reasonably sure the sheet is empty to avoid duplicating headers.
+    // For simplicity, we just append here. If it's already setup, they will get a second header row.
+    try {
+      await sheets.spreadsheets.values.append({
+        spreadsheetId,
+        range: "'Módulos'!A1",
+        valueInputOption: "USER_ENTERED",
+        requestBody: { values: [headersModulos] }
+      });
+    } catch (e) {
+      // ignore append error
+    }
 
     res.json({ success: true, message: "Google Sheets configurado correctamente" });
   } catch (err: unknown) {
