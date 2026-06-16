@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Sidebar from "@/components/Sidebar";
-import { getResultados, getEstudiante, getPretestGeneral, getPostestGeneral } from "@/lib/store";
+import { getResultados, getEstudiante, getPretestGeneral, getPostestGeneral, syncToBackend } from "@/lib/store";
 import { modulos } from "@/data/modules";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
@@ -15,6 +15,22 @@ export default function Progress() {
   const postestScore = getPostestGeneral();
 
   const completedModules = modulos.filter(m => resultados[m.id]?.avance === 100);
+
+  const handleManualSync = async () => {
+    try {
+      await syncToBackend("modulos", true);
+      toast({
+        title: "¡Enviado a Google Sheets!",
+        description: "El progreso de tus módulos ha sido añadido a la hoja de Módulos.",
+      });
+    } catch (e) {
+      toast({
+        title: "Error al enviar",
+        description: "Hubo un problema de conexión al guardar en Excel.",
+        variant: "destructive"
+      });
+    }
+  };
 
   // Los resultados se sincronizan automáticamente ahora.
 
@@ -88,7 +104,17 @@ export default function Progress() {
             </div>
           )}
 
-          {/* Envio manual eliminado */}
+          {/* Envio manual */}
+          <div className="flex justify-end pt-4 border-t border-border mt-4">
+            <button
+              onClick={handleManualSync}
+              className="flex items-center gap-2 font-semibold px-5 py-2.5 rounded-xl transition-all hover:opacity-90 active:scale-[0.98]"
+              style={{ background: "#00c8ff", color: "#00111a" }}
+            >
+              <Send size={18} />
+              Enviar a Google Sheets
+            </button>
+          </div>
         </div>
       </div>
     </Sidebar>

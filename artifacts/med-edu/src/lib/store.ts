@@ -40,7 +40,7 @@ export const getResultados = (): Resultados => {
   return data ? JSON.parse(data) : {};
 };
 
-export async function syncToBackend(testType?: "pretest" | "postest" | "modulos") {
+export async function syncToBackend(testType?: "pretest" | "postest" | "modulos", forceAppendModulos?: boolean) {
   const estudiante = getEstudiante();
   if (!estudiante) return; // No user logged in
 
@@ -61,6 +61,7 @@ export async function syncToBackend(testType?: "pretest" | "postest" | "modulos"
     pretestRespuestas: (testType === "pretest" || !testType) && pretestAnsStr ? JSON.parse(pretestAnsStr) : undefined,
     postestRespuestas: (testType === "postest" || !testType) && postestAnsStr ? JSON.parse(postestAnsStr) : undefined,
     resultadosModulos: (testType === "modulos" || !testType) ? getResultados() : undefined,
+    forceAppendModulos
   };
 
   try {
